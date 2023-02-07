@@ -6,7 +6,7 @@ pub trait Tickable {
 }
 
 pub enum TickResult {
-    ResourceResult(Resource),
+    ResourceResult(Vec<Resource>),
     MilitaryBuildResult(MilitaryCreation),
     None,
 }

@@ -1,6 +1,6 @@
 use super::{
     military::MilitaryCreation,
-    resource::{Resource, ResourceType},
+    resource::Resource,
     tickable::{TickResult, Tickable},
 };
 
@@ -43,7 +43,7 @@ impl MilitaryBuilding {
 
 pub struct ResourceBuilding {
     pub building: BuildingData,
-    pub create_type: Resource,
+    pub create_type: Vec<Resource>,
 }
 
 impl Building for ResourceBuilding {
@@ -66,7 +66,6 @@ impl Tickable for MilitaryBuilding {
 
 impl Tickable for ResourceBuilding {
     fn tick(&mut self) -> TickResult {
-        // println!("I am ticking, I am giving out  Credits per tick");
         TickResult::ResourceResult(self.create_type.clone())
     }
 }

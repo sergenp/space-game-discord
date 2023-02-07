@@ -1,5 +1,4 @@
 use super::buildings::Building;
-use super::resource;
 use super::resource::Resource;
 use super::resource::ResourceType;
 use super::tickable::TickResult;
@@ -77,17 +76,19 @@ impl Tickable for Planet {
     fn tick(&mut self) -> TickResult {
         for building in self.buildings.iter_mut() {
             match building.tick() {
-                TickResult::ResourceResult(resource) => {
-                    // can't use self.add_resource here because we can't pass self to the add_resource function
-                    // doing so would cause another mutable borrow
-                    let resource_type = match self.resources.get_mut(&resource.resource_type) {
-                        Some(resource_type) => resource_type,
-                        None => panic!(
-                            "No resource have been found in the planet for building the building."
-                        ),
-                    };
+                TickResult::ResourceResult(resources) => {
+                    for resource in resources {
+                        // can't use self.add_resource here because we can't pass self to the add_resource function
+                        // doing so would cause another mutable borrow
+                        let resource_type = match self.resources.get_mut(&resource.resource_type) {
+                            Some(resource_type) => resource_type,
+                            None => panic!(
+                                "No resource have been found in the planet for building the building."
+                            ),
+                        };
 
-                    *resource_type += resource;
+                        *resource_type += resource;
+                    }
                 }
                 TickResult::MilitaryBuildResult(_military_creation) => todo!(),
                 TickResult::None => (),
