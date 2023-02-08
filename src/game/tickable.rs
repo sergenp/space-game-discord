@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::military::MilitaryCreation;
 use super::resource::Resource;
 
@@ -6,7 +8,7 @@ pub trait Tickable {
 }
 
 pub enum TickResult {
-    ResourceResult(Vec<Resource>),
+    ResourceResult(HashSet<Resource>),
     MilitaryBuildResult(MilitaryCreation),
     None,
 }
