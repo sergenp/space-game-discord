@@ -16,6 +16,8 @@ impl Tickable for GameWorld {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::game::{
         buildings::{BuildingData, ResourceBuilding},
         planet::Planet,
@@ -26,17 +28,25 @@ mod tests {
     #[test]
     fn building_without_enough_resource_error() {
         let mut planet_1 = Planet::new(0, 0);
-        let create_type = vec![Resource {
-            resource_type: ResourceType::Minerals,
-            amount: 10,
-        }];
+        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
+        create_type.insert(
+            ResourceType::Minerals,
+            Resource {
+                resource_type: ResourceType::Minerals,
+                amount: 10,
+            },
+        );
+        let resource_cost = Resource {
+            resource_type: ResourceType::Credits,
+            amount: 20,
+        };
+
+        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
+        resource_costs.insert(ResourceType::Credits, resource_cost);
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("ResourceBuildingName"),
-                resource_cost: Resource {
-                    resource_type: ResourceType::Credits,
-                    amount: 20,
-                },
+                resource_cost: resource_costs,
                 level: 1,
             },
             create_type,
@@ -53,17 +63,27 @@ mod tests {
             resource_type: ResourceType::Credits,
             amount: 20,
         });
-        let create_type = vec![Resource {
-            resource_type: ResourceType::Minerals,
-            amount: 10,
-        }];
+
+        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
+        create_type.insert(
+            ResourceType::Minerals,
+            Resource {
+                resource_type: ResourceType::Minerals,
+                amount: 10,
+            },
+        );
+
+        let resource_cost = Resource {
+            resource_type: ResourceType::Credits,
+            amount: 20,
+        };
+        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
+        resource_costs.insert(ResourceType::Credits, resource_cost);
+
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("ResourceBuildingName"),
-                resource_cost: Resource {
-                    resource_type: ResourceType::Credits,
-                    amount: 20,
-                },
+                resource_cost: resource_costs,
                 level: 1,
             },
             create_type,
@@ -71,6 +91,7 @@ mod tests {
         assert!(planet_1.build_building(Box::new(resource_building)).is_ok());
         assert!(planet_1.get_resource(ResourceType::Credits).unwrap().amount == 0);
     }
+
     #[test]
     fn resource_building_tick_test_with_planet() {
         let mut planet_1: Planet = Planet::new(0, 0);
@@ -79,17 +100,28 @@ mod tests {
             resource_type: ResourceType::Food,
             amount: 5,
         });
-        let create_type = vec![Resource {
-            resource_type: ResourceType::Minerals,
-            amount: 10,
-        }];
+
+        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
+        create_type.insert(
+            ResourceType::Minerals,
+            Resource {
+                resource_type: ResourceType::Minerals,
+                amount: 10,
+            },
+        );
+
+        let resource_cost = Resource {
+            resource_type: ResourceType::Food,
+            amount: 5,
+        };
+
+        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
+        resource_costs.insert(ResourceType::Food, resource_cost);
+
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("BuildingThatCostsFood"),
-                resource_cost: Resource {
-                    resource_type: ResourceType::Food,
-                    amount: 5,
-                },
+                resource_cost: resource_costs,
                 level: 1,
             },
             // generate 10 minerals per tick
@@ -138,23 +170,35 @@ mod tests {
             resource_type: ResourceType::Food,
             amount: 5,
         });
-        let create_type = vec![
+
+        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
+        create_type.insert(
+            ResourceType::Minerals,
             Resource {
                 resource_type: ResourceType::Minerals,
                 amount: 10,
             },
+        );
+        create_type.insert(
+            ResourceType::Credits,
             Resource {
                 resource_type: ResourceType::Credits,
                 amount: 5,
             },
-        ];
+        );
+
+        let resource_cost = Resource {
+            resource_type: ResourceType::Food,
+            amount: 5,
+        };
+
+        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
+        resource_costs.insert(ResourceType::Food, resource_cost);
+
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("BuildingThatCostsFood"),
-                resource_cost: Resource {
-                    resource_type: ResourceType::Food,
-                    amount: 5,
-                },
+                resource_cost: resource_costs,
                 level: 1,
             },
             // generate 10 minerals per tick and 5 credits per tick
@@ -198,6 +242,7 @@ mod tests {
         );
         assert!(planet_1.get_resource(ResourceType::Credits).unwrap().amount == 10);
     }
+
     #[test]
     fn multi_resource_minus_amount_building_tick_test_with_planet() {
         let mut planet_1: Planet = Planet::new(0, 0);
@@ -211,24 +256,34 @@ mod tests {
             amount: 20,
         });
 
-        let create_type = vec![
+        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
+        create_type.insert(
+            ResourceType::Minerals,
             Resource {
                 resource_type: ResourceType::Minerals,
                 amount: 10,
             },
-            // let's say this building uses credits to generate minerals
+        );
+        create_type.insert(
+            ResourceType::Credits,
             Resource {
                 resource_type: ResourceType::Credits,
                 amount: -5,
             },
-        ];
+        );
+
+        let resource_cost = Resource {
+            resource_type: ResourceType::Food,
+            amount: 5,
+        };
+
+        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
+        resource_costs.insert(ResourceType::Food, resource_cost);
+
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("BuildingThatCostsFood"),
-                resource_cost: Resource {
-                    resource_type: ResourceType::Food,
-                    amount: 5,
-                },
+                resource_cost: resource_costs,
                 level: 1,
             },
             // generate 10 minerals per tick and 5 credits per tick

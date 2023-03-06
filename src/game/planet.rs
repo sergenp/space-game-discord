@@ -31,21 +31,30 @@ impl Planet {
 
     pub fn build_building(&mut self, building: Box<dyn Building>) -> Result<(), &str> {
         let building_data = building.get_building_data();
-        let building_resource_type = &building_data.resource_cost.resource_type;
 
-        let resource_type = match self.resources.get_mut(&building_resource_type) {
-            Some(resource_type) => resource_type,
-            None => panic!("No resource have been found in the planet for given resource type"),
-        };
+        for resource in &building_data.resource_cost {
+            let planet_resource = match self.resources.get(&resource.0) {
+                Some(planet_resource) => planet_resource,
+                None => return Err("Failed to get the required resource from the planet"),
+            };
 
-        if building_data.resource_cost.amount > resource_type.amount {
-            Err("You don't have required amount to build this building.")
-        } else {
-            resource_type.amount -= building_data.resource_cost.amount;
-            self.buildings.push(building);
-            Ok(())
+            if planet_resource.amount < resource.1.amount {
+                return Err("You don't have enough resources to build this building");
+            }
         }
+
+        for resource in &building_data.resource_cost {
+            let planet_resource = match self.resources.get_mut(&resource.0) {
+                Some(planet_resource) => planet_resource,
+                None => return Err("Failed to get the required resource from the planet"),
+            };
+
+            planet_resource.amount -= resource.1.amount;
+        }
+        self.buildings.push(building);
+        Ok(())
     }
+
     pub fn new(pos_x: u32, pos_y: u32) -> Self {
         let mut resources = HashMap::new();
         let credit_resource = Resource {
@@ -80,14 +89,14 @@ impl Tickable for Planet {
                     for resource in resources {
                         // can't use self.add_resource here because we can't pass self to the add_resource function
                         // doing so would cause another mutable borrow
-                        let resource_type = match self.resources.get_mut(&resource.resource_type) {
-                            Some(resource_type) => resource_type,
+                        let planet_resource = match self.resources.get_mut(&resource.0) {
+                            Some(planet_resource) => planet_resource,
                             None => panic!(
                                 "No resource have been found in the planet for building the building."
                             ),
                         };
 
-                        *resource_type += resource;
+                        planet_resource.amount += resource.1.amount;
                     }
                 }
                 TickResult::MilitaryBuildResult(_military_creation) => todo!(),

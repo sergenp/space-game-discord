@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use super::{
     military::MilitaryCreation,
-    resource::Resource,
+    resource::{Resource, ResourceType},
     tickable::{TickResult, Tickable},
 };
 
@@ -10,7 +12,7 @@ pub trait Building: Tickable {
 
 pub struct BuildingData {
     pub name: String,
-    pub resource_cost: Resource,
+    pub resource_cost: HashMap<ResourceType, Resource>,
     pub level: u32,
 }
 
@@ -25,7 +27,7 @@ impl MilitaryBuilding {
     pub fn new(
         create_type: MilitaryCreation,
         name: String,
-        resource_cost: Resource,
+        resource_cost: HashMap<ResourceType, Resource>,
         next_creation_progress: u32,
     ) -> Self {
         Self {
@@ -43,7 +45,7 @@ impl MilitaryBuilding {
 
 pub struct ResourceBuilding {
     pub building: BuildingData,
-    pub create_type: Vec<Resource>,
+    pub create_type: HashMap<ResourceType, Resource>,
 }
 
 impl Building for ResourceBuilding {
