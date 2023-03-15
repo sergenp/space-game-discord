@@ -1,3 +1,4 @@
+pub mod build_tick_handler;
 pub mod buildings;
 pub mod game_world;
 pub mod military;

@@ -7,6 +7,7 @@ pub trait Tickable {
     fn tick(&mut self) -> TickResult;
 }
 
+#[derive(Debug, Clone)]
 pub enum TickResult {
     ResourceResult(HashMap<ResourceType, Resource>),
     MilitaryBuildResult(MilitaryCreation),

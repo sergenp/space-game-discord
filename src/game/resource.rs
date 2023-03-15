@@ -1,12 +1,12 @@
 use std::ops::AddAssign;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Resource {
     pub resource_type: ResourceType,
     pub amount: i32,
 }
 
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, Hash, PartialEq, Clone, Copy)]
 pub enum ResourceType {
     Minerals,
     Credits,

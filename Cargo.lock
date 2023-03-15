@@ -3,5 +3,14 @@
 version = 3
 
 [[package]]
+name = "mediator-sys"
+version = "2.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6db11be9b47cac68c25df4b6b4a52675077c86311093124b5c89badf98d2a4f3"
+
+[[package]]
 name = "space-game-discord"
 version = "0.1.0"
+dependencies = [
+ "mediator-sys",
+]

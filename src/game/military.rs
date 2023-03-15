@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct MilitaryCreation {
     name: String,
     level: u32,
@@ -6,6 +7,7 @@ pub struct MilitaryCreation {
     military_type: MiltaryCreationTypes,
 }
 
+#[derive(Debug, Clone)]
 pub enum MiltaryCreationTypes {
     Ship,
     DefenceTurret,
