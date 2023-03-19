@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{
-    military::MilitaryCreation,
+    military::MilitaryCreationTypes,
     resource::{Resource, ResourceType},
     tickable::{TickResult, Tickable},
 };
@@ -37,17 +37,21 @@ pub struct BuildingData {
 
 pub struct MilitaryBuilding {
     pub building: BuildingData,
-    pub create_type: MilitaryCreation,
-    pub next_creation_progress: u32,
+    pub create_type: MilitaryCreationTypes,
+    pub military_cost_per_tick: HashMap<ResourceType, Resource>,
+    pub progress_required_to_create_military: u32,
     pub current_progress: u32,
+    pub progress_increase_per_tick: u32,
 }
 
 impl MilitaryBuilding {
     pub fn new(
-        create_type: MilitaryCreation,
         name: String,
         resource_cost: HashMap<ResourceType, Resource>,
-        next_creation_progress: u32,
+        create_type: MilitaryCreationTypes,
+        military_cost_per_tick: HashMap<ResourceType, Resource>,
+        progress_required_to_create_military: u32,
+        progress_increase_per_tick: u32,
     ) -> Self {
         Self {
             create_type,
@@ -56,8 +60,10 @@ impl MilitaryBuilding {
                 resource_cost,
                 level: 1,
             },
-            next_creation_progress,
+            military_cost_per_tick,
+            progress_required_to_create_military,
             current_progress: 0,
+            progress_increase_per_tick,
         }
     }
 }
@@ -69,7 +75,13 @@ pub struct ResourceBuilding {
 
 impl Tickable for MilitaryBuilding {
     fn tick(&mut self) -> TickResult {
-        todo!();
+        self.current_progress += self.progress_increase_per_tick;
+        if self.current_progress >= self.progress_required_to_create_military {
+            self.current_progress = 0;
+            TickResult::MilitaryBuildResult(self.create_type.clone())
+        } else {
+            TickResult::ResourceResult(self.military_cost_per_tick.clone())
+        }
     }
 }
 

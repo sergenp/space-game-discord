@@ -4,29 +4,21 @@ pub struct MilitaryCreation {
     level: u32,
     attack: u32,
     defence: u32,
-    military_type: MiltaryCreationTypes,
 }
 
 #[derive(Debug, Clone)]
-pub enum MiltaryCreationTypes {
-    Ship,
-    DefenceTurret,
+pub enum MilitaryCreationTypes {
+    Ship(MilitaryCreation),
+    DefenceTurret(MilitaryCreation),
 }
 
 impl MilitaryCreation {
-    pub fn new(
-        name: String,
-        level: u32,
-        attack: u32,
-        defence: u32,
-        military_type: MiltaryCreationTypes,
-    ) -> Self {
+    pub fn new(name: String, level: u32, attack: u32, defence: u32) -> Self {
         Self {
             name,
             level,
             attack,
             defence,
-            military_type,
         }
     }
 }

@@ -6,7 +6,6 @@ use game::{
     buildings::{Building, BuildingData, ResourceBuilding},
     planet::Planet,
     resource::{Resource, ResourceType},
-    tickable::Tickable,
 };
 use mediator_sys::{
     builder::{BuilderFlow, BuilderInternal},

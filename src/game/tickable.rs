@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::military::MilitaryCreation;
+use super::military::MilitaryCreationTypes;
 use super::resource::{Resource, ResourceType};
 
 pub trait Tickable {
@@ -10,6 +10,6 @@ pub trait Tickable {
 #[derive(Debug, Clone)]
 pub enum TickResult {
     ResourceResult(HashMap<ResourceType, Resource>),
-    MilitaryBuildResult(MilitaryCreation),
+    MilitaryBuildResult(MilitaryCreationTypes),
     None,
 }

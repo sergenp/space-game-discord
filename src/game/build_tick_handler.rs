@@ -11,13 +11,18 @@ pub struct BuildingTickRequest<'a> {
 
 impl RequestHandler<BuildingTickRequest<'_>, TickResult> for BasicMediator<TickResult> {
     fn handle(&self, req: BuildingTickRequest) {
-        for building in req.planet.buildings.iter_mut() {
+        let buildings = req.planet.buildings.iter_mut();
+        for building in buildings {
             let tick_result = building.tick();
+
             match tick_result {
                 TickResult::ResourceResult(res) => {
                     Planet::add_resource(&mut req.planet.resources, res)
                 }
-                _ => (),
+                TickResult::MilitaryBuildResult(mil) => {
+                    Planet::add_military(&mut req.planet.military, mil)
+                }
+                TickResult::None => (),
             }
         }
     }

@@ -1,8 +1,5 @@
-use mediator_sys::synchronous::basic::BasicMediator;
-use mediator_sys::synchronous::basic::SyncMediatorInternalHandle;
-
-use super::build_tick_handler::BuildingTickRequest;
 use super::buildings::Building;
+use super::military::MilitaryCreationTypes;
 use super::resource::Resource;
 use super::resource::ResourceType;
 use super::tickable::TickResult;
@@ -15,10 +12,10 @@ pub struct Position {
 }
 
 pub struct Planet {
-    // tick_mediator: BasicMediator<TickResult>,
     pub buildings: Vec<Building>,
+    pub military: Vec<MilitaryCreationTypes>,
     pub resources: HashMap<ResourceType, Resource>,
-    position: Position,
+    pub position: Position,
 }
 
 impl Planet {
@@ -27,8 +24,6 @@ impl Planet {
         resource_to_add: HashMap<ResourceType, Resource>,
     ) {
         for resource in resource_to_add {
-            // can't use self.add_resource here because we can't pass self to the add_resource function
-            // doing so would cause another mutable borrow
             let planet_resource = match resource_map.get_mut(&resource.0) {
                 Some(planet_resource) => planet_resource,
                 None => {
@@ -38,6 +33,13 @@ impl Planet {
 
             planet_resource.amount += resource.1.amount;
         }
+    }
+
+    pub fn add_military(
+        military_vec: &mut Vec<MilitaryCreationTypes>,
+        military: MilitaryCreationTypes,
+    ) {
+        military_vec.push(military);
     }
 
     pub fn get_resource(&self, resource_type: ResourceType) -> Option<&Resource> {
@@ -66,7 +68,9 @@ impl Planet {
 
             planet_resource.amount -= resource.1.amount;
         }
+
         self.buildings.push(building);
+
         Ok(())
     }
 
@@ -90,6 +94,7 @@ impl Planet {
 
         Self {
             buildings: vec![],
+            military: vec![],
             resources,
             position: Position { x: pos_x, y: pos_y },
         }
