@@ -6,8 +6,27 @@ use super::{
     tickable::{TickResult, Tickable},
 };
 
-pub trait Building: Tickable {
-    fn get_building_data(&self) -> &BuildingData;
+pub enum Building {
+    MilitaryBuilding(MilitaryBuilding),
+    ResourceBuilding(ResourceBuilding),
+}
+
+impl Tickable for Building {
+    fn tick(&mut self) -> TickResult {
+        match self {
+            Self::MilitaryBuilding(mil) => mil.tick(),
+            Self::ResourceBuilding(res) => res.tick(),
+        }
+    }
+}
+
+impl Building {
+    pub fn get_building_data(&self) -> &BuildingData {
+        match self {
+            Self::MilitaryBuilding(mil) => &mil.building,
+            Self::ResourceBuilding(res) => &res.building,
+        }
+    }
 }
 
 pub struct BuildingData {
@@ -46,18 +65,6 @@ impl MilitaryBuilding {
 pub struct ResourceBuilding {
     pub building: BuildingData,
     pub create_type: HashMap<ResourceType, Resource>,
-}
-
-impl Building for ResourceBuilding {
-    fn get_building_data(&self) -> &BuildingData {
-        &self.building
-    }
-}
-
-impl Building for MilitaryBuilding {
-    fn get_building_data(&self) -> &BuildingData {
-        &self.building
-    }
 }
 
 impl Tickable for MilitaryBuilding {

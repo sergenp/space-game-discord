@@ -3,9 +3,10 @@ use std::collections::HashMap;
 
 use game::{
     build_tick_handler::BuildingTickRequest,
-    buildings::{BuildingData, ResourceBuilding},
+    buildings::{Building, BuildingData, ResourceBuilding},
     planet::Planet,
     resource::{Resource, ResourceType},
+    tickable::Tickable,
 };
 use mediator_sys::{
     builder::{BuilderFlow, BuilderInternal},
@@ -16,6 +17,7 @@ use crate::game::tickable::TickResult;
 
 fn main() {
     let mut planet_1 = Planet::new(0, 0);
+
     let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
     create_type.insert(
         ResourceType::Minerals,
@@ -26,7 +28,7 @@ fn main() {
     );
     let resource_cost = Resource {
         resource_type: ResourceType::Credits,
-        amount: 20,
+        amount: 0,
     };
 
     let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
@@ -40,28 +42,21 @@ fn main() {
         create_type,
     };
 
-    let mediator = BasicMediator::<TickResult>::builder()
-        .add_listener(move |ev| {
-            if let TickResult::None = ev {
-                println!("Ignored some Message")
-            }
-        })
-        .add_listener(move |ev| {
-            if let TickResult::ResourceResult(res) = ev {
-                println!("Got {:?}", res);
-            }
-        })
-        .build();
+    planet_1
+        .build_building(Building::ResourceBuilding(resource_building))
+        .unwrap();
 
     println!(
         "{:?}",
         planet_1.get_resource(ResourceType::Minerals).unwrap()
     );
+
+    let mediator: BasicMediator<TickResult> = BasicMediator::<TickResult>::builder().build();
     mediator.send(BuildingTickRequest {
         planet: &mut planet_1,
-        building: Box::new(resource_building),
     });
-    print!(
+
+    println!(
         "{:?}",
         planet_1.get_resource(ResourceType::Minerals).unwrap()
     );

@@ -1,3 +1,7 @@
+use mediator_sys::synchronous::basic::BasicMediator;
+use mediator_sys::synchronous::basic::SyncMediatorInternalHandle;
+
+use super::build_tick_handler::BuildingTickRequest;
 use super::buildings::Building;
 use super::resource::Resource;
 use super::resource::ResourceType;
@@ -11,25 +15,36 @@ pub struct Position {
 }
 
 pub struct Planet {
-    buildings: Vec<Box<dyn Building>>,
-    resources: HashMap<ResourceType, Resource>,
+    // tick_mediator: BasicMediator<TickResult>,
+    pub buildings: Vec<Building>,
+    pub resources: HashMap<ResourceType, Resource>,
     position: Position,
 }
 
 impl Planet {
-    pub fn add_resource(&mut self, resource: Resource) {
-        let planet_resource = match self.resources.get_mut(&resource.resource_type) {
-            Some(planet_resource) => planet_resource,
-            None => panic!("No resource have been found in the planet for given resource type"),
-        };
-        *planet_resource += resource;
+    pub fn add_resource(
+        resource_map: &mut HashMap<ResourceType, Resource>,
+        resource_to_add: HashMap<ResourceType, Resource>,
+    ) {
+        for resource in resource_to_add {
+            // can't use self.add_resource here because we can't pass self to the add_resource function
+            // doing so would cause another mutable borrow
+            let planet_resource = match resource_map.get_mut(&resource.0) {
+                Some(planet_resource) => planet_resource,
+                None => {
+                    panic!("No resource have been found in the planet for building the building.")
+                }
+            };
+
+            planet_resource.amount += resource.1.amount;
+        }
     }
 
     pub fn get_resource(&self, resource_type: ResourceType) -> Option<&Resource> {
         return self.resources.get(&resource_type);
     }
 
-    pub fn build_building(&mut self, building: Box<dyn Building>) -> Result<(), &str> {
+    pub fn build_building(&mut self, building: Building) -> Result<(), &str> {
         let building_data = building.get_building_data();
 
         for resource in &building_data.resource_cost {
@@ -83,26 +98,6 @@ impl Planet {
 
 impl Tickable for Planet {
     fn tick(&mut self) -> TickResult {
-        for building in self.buildings.iter_mut() {
-            match building.tick() {
-                TickResult::ResourceResult(resources) => {
-                    for resource in resources {
-                        // can't use self.add_resource here because we can't pass self to the add_resource function
-                        // doing so would cause another mutable borrow
-                        let planet_resource = match self.resources.get_mut(&resource.0) {
-                            Some(planet_resource) => planet_resource,
-                            None => panic!(
-                                "No resource have been found in the planet for building the building."
-                            ),
-                        };
-
-                        planet_resource.amount += resource.1.amount;
-                    }
-                }
-                TickResult::MilitaryBuildResult(_military_creation) => todo!(),
-                TickResult::None => (),
-            };
-        }
         TickResult::None
     }
 }

@@ -1,22 +1,24 @@
 use mediator_sys::synchronous::basic::*;
 
-use crate::game::resource::ResourceType;
-
-use super::{buildings::Building, planet::Planet, tickable::TickResult};
+use super::{
+    planet::Planet,
+    tickable::{TickResult, Tickable},
+};
 
 pub struct BuildingTickRequest<'a> {
     pub planet: &'a mut Planet,
-    pub building: Box<dyn Building>,
 }
 
 impl RequestHandler<BuildingTickRequest<'_>, TickResult> for BasicMediator<TickResult> {
-    fn handle(&self, mut req: BuildingTickRequest) {
-        let tick_result = req.building.tick();
-        if let TickResult::ResourceResult(res) = tick_result {
-            println!("Got {:?}", res);
-
-            req.planet
-                .add_resource(*res.get(&ResourceType::Minerals).unwrap())
+    fn handle(&self, req: BuildingTickRequest) {
+        for building in req.planet.buildings.iter_mut() {
+            let tick_result = building.tick();
+            match tick_result {
+                TickResult::ResourceResult(res) => {
+                    Planet::add_resource(&mut req.planet.resources, res)
+                }
+                _ => (),
+            }
         }
     }
 }
