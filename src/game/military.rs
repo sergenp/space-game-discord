@@ -1,9 +1,9 @@
 #[derive(Debug, Clone)]
 pub struct MilitaryCreation {
-    name: String,
-    level: u32,
-    attack: u32,
-    defence: u32,
+    pub name: String,
+    pub level: u32,
+    pub attack: u32,
+    pub defence: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -21,4 +21,8 @@ impl MilitaryCreation {
             defence,
         }
     }
+}
+
+pub struct Fleet {
+    pub ships: Vec<MilitaryCreationTypes>,
 }

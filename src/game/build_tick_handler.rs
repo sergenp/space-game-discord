@@ -20,7 +20,9 @@ impl RequestHandler<BuildingTickRequest<'_>, TickResult> for BasicMediator<TickR
                     Planet::add_resource(&mut req.planet.resources, res)
                 }
                 TickResult::MilitaryBuildResult(mil) => {
-                    Planet::add_military(&mut req.planet.military, mil)
+                    let planet_name = req.planet.name.clone();
+                    let fleet_name = format!("{}{}", planet_name, String::from(" fleet"));
+                    Planet::add_military(req.planet.military.get_mut(&fleet_name).unwrap(), mil)
                 }
                 TickResult::None => (),
             }

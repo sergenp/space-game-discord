@@ -33,35 +33,57 @@ mod tests {
     use std::collections::HashMap;
 
     use crate::game::{
-        buildings::{Building, BuildingData, ResourceBuilding},
+        buildings::{Building, BuildingData, MilitaryBuilding, ResourceBuilding},
         game_world::GameWorld,
+        military::{MilitaryCreation, MilitaryCreationTypes},
         planet::Planet,
         resource::{Resource, ResourceType},
         tickable::Tickable,
     };
 
-    #[test]
-    fn building_without_enough_resource_error() {
-        let mut planet_1 = Planet::new(0, 0);
-        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
-        create_type.insert(
+    fn create_resource_map(
+        credit_amount: i32,
+        food_amount: i32,
+        mineral_amount: i32,
+    ) -> HashMap<ResourceType, Resource> {
+        let mut resource = HashMap::new();
+
+        resource.insert(
+            ResourceType::Credits,
+            Resource {
+                resource_type: ResourceType::Credits,
+                amount: credit_amount,
+            },
+        );
+        resource.insert(
+            ResourceType::Food,
+            Resource {
+                resource_type: ResourceType::Food,
+                amount: food_amount,
+            },
+        );
+        resource.insert(
             ResourceType::Minerals,
             Resource {
                 resource_type: ResourceType::Minerals,
-                amount: 10,
+                amount: mineral_amount,
             },
         );
-        let resource_cost = Resource {
-            resource_type: ResourceType::Credits,
-            amount: 20,
-        };
 
-        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_costs.insert(ResourceType::Credits, resource_cost);
+        resource
+    }
+
+    #[test]
+    fn building_without_enough_resource_error() {
+        let mut planet_1 = Planet::new(String::from("planet_1"), 0, 0);
+
+        let create_type = create_resource_map(0, 0, 10);
+        let resource_cost = create_resource_map(20, 0, 0);
+
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("ResourceBuildingName"),
-                resource_cost: resource_costs,
+                resource_cost,
                 level: 1,
             },
             create_type,
@@ -74,37 +96,18 @@ mod tests {
 
     #[test]
     fn building_with_enough_resource_success() {
-        let mut planet_1: Planet = Planet::new(0, 0);
-        let mut resource_to_add: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_to_add.insert(
-            ResourceType::Credits,
-            Resource {
-                resource_type: ResourceType::Credits,
-                amount: 20,
-            },
-        );
+        let mut planet_1: Planet = Planet::new(String::from("planet_1"), 0, 0);
+
+        let resource_to_add = create_resource_map(20, 0, 0);
         Planet::add_resource(&mut planet_1.resources, resource_to_add);
 
-        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
-        create_type.insert(
-            ResourceType::Minerals,
-            Resource {
-                resource_type: ResourceType::Minerals,
-                amount: 10,
-            },
-        );
-
-        let resource_cost = Resource {
-            resource_type: ResourceType::Credits,
-            amount: 20,
-        };
-        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_costs.insert(ResourceType::Credits, resource_cost);
+        let create_type = create_resource_map(0, 0, 10);
+        let resource_cost = create_resource_map(20, 0, 0);
 
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("ResourceBuildingName"),
-                resource_cost: resource_costs,
+                resource_cost,
                 level: 1,
             },
             create_type,
@@ -117,40 +120,18 @@ mod tests {
 
     #[test]
     fn resource_building_tick_test_with_planet() {
-        let mut planet_1: Planet = Planet::new(0, 0);
-        // planets start with 0 resources
-        let mut resource_to_add: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_to_add.insert(
-            ResourceType::Food,
-            Resource {
-                resource_type: ResourceType::Food,
-                amount: 5,
-            },
-        );
+        let mut planet_1: Planet = Planet::new(String::from("planet_1"), 0, 0);
 
+        let resource_to_add = create_resource_map(0, 5, 0);
         Planet::add_resource(&mut planet_1.resources, resource_to_add);
 
-        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
-        create_type.insert(
-            ResourceType::Minerals,
-            Resource {
-                resource_type: ResourceType::Minerals,
-                amount: 10,
-            },
-        );
-
-        let resource_cost = Resource {
-            resource_type: ResourceType::Food,
-            amount: 5,
-        };
-
-        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_costs.insert(ResourceType::Food, resource_cost);
+        let create_type = create_resource_map(0, 0, 10);
+        let resource_cost = create_resource_map(0, 5, 0);
 
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("BuildingThatCostsFood"),
-                resource_cost: resource_costs,
+                resource_cost,
                 level: 1,
             },
             // generate 10 minerals per tick
@@ -204,47 +185,18 @@ mod tests {
 
     #[test]
     fn multi_resource_building_tick_test_with_planet() {
-        let mut planet_1: Planet = Planet::new(0, 0);
-        // planets start with 0 resources
-        let mut resource_to_add: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_to_add.insert(
-            ResourceType::Food,
-            Resource {
-                resource_type: ResourceType::Food,
-                amount: 5,
-            },
-        );
+        let mut planet_1: Planet = Planet::new(String::from("planet_1"), 0, 0);
 
+        let resource_to_add = create_resource_map(0, 5, 0);
         Planet::add_resource(&mut planet_1.resources, resource_to_add);
 
-        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
-        create_type.insert(
-            ResourceType::Minerals,
-            Resource {
-                resource_type: ResourceType::Minerals,
-                amount: 10,
-            },
-        );
-        create_type.insert(
-            ResourceType::Credits,
-            Resource {
-                resource_type: ResourceType::Credits,
-                amount: 5,
-            },
-        );
-
-        let resource_cost = Resource {
-            resource_type: ResourceType::Food,
-            amount: 5,
-        };
-
-        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_costs.insert(ResourceType::Food, resource_cost);
+        let create_type = create_resource_map(5, 0, 10);
+        let resource_cost = create_resource_map(0, 5, 0);
 
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
                 name: String::from("BuildingThatCostsFood"),
-                resource_cost: resource_costs,
+                resource_cost,
                 level: 1,
             },
             // generate 10 minerals per tick and 5 credits per tick
@@ -319,48 +271,15 @@ mod tests {
 
     #[test]
     fn multi_resource_minus_amount_building_tick_test_with_planet() {
-        let mut planet_1: Planet = Planet::new(0, 0);
-        let mut resource_to_add: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_to_add.insert(
-            ResourceType::Food,
-            Resource {
-                resource_type: ResourceType::Food,
-                amount: 5,
-            },
-        );
-        resource_to_add.insert(
-            ResourceType::Credits,
-            Resource {
-                resource_type: ResourceType::Credits,
-                amount: 20,
-            },
-        );
+        let mut planet_1: Planet = Planet::new(String::from("planet_1"), 0, 0);
+
+        let resource_to_add = create_resource_map(20, 5, 0);
 
         Planet::add_resource(&mut planet_1.resources, resource_to_add);
 
-        let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
-        create_type.insert(
-            ResourceType::Minerals,
-            Resource {
-                resource_type: ResourceType::Minerals,
-                amount: 10,
-            },
-        );
-        create_type.insert(
-            ResourceType::Credits,
-            Resource {
-                resource_type: ResourceType::Credits,
-                amount: -5,
-            },
-        );
+        let create_type = create_resource_map(-5, 0, 10);
 
-        let resource_cost = Resource {
-            resource_type: ResourceType::Food,
-            amount: 5,
-        };
-
-        let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-        resource_costs.insert(ResourceType::Food, resource_cost);
+        let resource_costs = create_resource_map(0, 5, 0);
 
         let resource_building: ResourceBuilding = ResourceBuilding {
             building: BuildingData {
@@ -392,13 +311,6 @@ mod tests {
                 == 10
         );
         // we had 20 credits, now we will have 15
-        println!(
-            "{}",
-            world.planets[0]
-                .get_resource(ResourceType::Credits)
-                .unwrap()
-                .amount
-        );
         assert!(
             world.planets[0]
                 .get_resource(ResourceType::Credits)
@@ -423,5 +335,62 @@ mod tests {
                 .amount
                 == 10
         );
+    }
+
+    #[test]
+    fn building_with_military_creation_test() {
+        let planet_1: Planet = Planet::new(String::from("planet_1"), 0, 0);
+        let mut world = GameWorld::new(vec![planet_1]);
+
+        let mut planet_1 = &mut world.planets[0];
+
+        let resource_to_add = create_resource_map(1000, 1000, 1000);
+
+        let resource_cost_for_building = create_resource_map(0, 0, 0);
+
+        let military_cost_per_tick = create_resource_map(-10, -10, -10);
+
+        Planet::add_resource(&mut planet_1.resources, resource_to_add);
+
+        let create_type = MilitaryCreation {
+            attack: 5,
+            defence: 5,
+            level: 1,
+            name: String::from("MilitaryCreation1"),
+        };
+
+        let military_building: MilitaryBuilding = MilitaryBuilding {
+            building: BuildingData {
+                name: String::from("MilitaryBuilding"),
+                resource_cost: resource_cost_for_building,
+                level: 1,
+            },
+            create_type: MilitaryCreationTypes::Ship(create_type),
+            military_cost_per_tick,
+            progress_required_to_create_military: 20,
+            current_progress: 0,
+            progress_increase_per_tick: 10,
+        };
+
+        assert!(planet_1
+            .build_building(Building::MilitaryBuilding(military_building))
+            .is_ok());
+
+        world.tick();
+
+        // we had 1000 credits, now we will have 990 because of militay_cost_per_tick
+        assert!(
+            world.planets[0]
+                .get_resource(ResourceType::Credits)
+                .unwrap()
+                .amount
+                == 990
+        );
+        // after the second tick, we expect our military creation to complete
+        world.tick();
+        let fleet_name = format!("{}{}", world.planets[0].name.clone(), " fleet");
+        let fleet = world.planets[0].military.get(&fleet_name).unwrap();
+
+        assert_eq!(fleet.ships.len(), 1);
     }
 }

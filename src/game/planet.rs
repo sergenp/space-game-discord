@@ -1,19 +1,17 @@
 use super::buildings::Building;
+use super::military::Fleet;
 use super::military::MilitaryCreationTypes;
+use super::position::Position;
 use super::resource::Resource;
 use super::resource::ResourceType;
 use super::tickable::TickResult;
 use super::tickable::Tickable;
 use std::collections::HashMap;
 
-pub struct Position {
-    x: u32,
-    y: u32,
-}
-
 pub struct Planet {
+    pub name: String,
     pub buildings: Vec<Building>,
-    pub military: Vec<MilitaryCreationTypes>,
+    pub military: HashMap<String, Fleet>,
     pub resources: HashMap<ResourceType, Resource>,
     pub position: Position,
 }
@@ -35,11 +33,12 @@ impl Planet {
         }
     }
 
-    pub fn add_military(
-        military_vec: &mut Vec<MilitaryCreationTypes>,
-        military: MilitaryCreationTypes,
-    ) {
-        military_vec.push(military);
+    pub fn create_fleet(fleet_map: &mut HashMap<String, Fleet>, name: String) {
+        fleet_map.insert(name, Fleet { ships: vec![] });
+    }
+
+    pub fn add_military(fleet: &mut Fleet, military: MilitaryCreationTypes) {
+        fleet.ships.push(military);
     }
 
     pub fn get_resource(&self, resource_type: ResourceType) -> Option<&Resource> {
@@ -74,7 +73,7 @@ impl Planet {
         Ok(())
     }
 
-    pub fn new(pos_x: u32, pos_y: u32) -> Self {
+    pub fn new(name: String, pos_x: u32, pos_y: u32) -> Self {
         let mut resources = HashMap::new();
         let credit_resource = Resource {
             resource_type: ResourceType::Credits,
@@ -92,9 +91,14 @@ impl Planet {
         resources.insert(ResourceType::Food, food_resource);
         resources.insert(ResourceType::Minerals, mineral_resource);
 
+        let mut original_fleet = HashMap::new();
+        let fleet_name = format!("{}{}", name, String::from(" fleet"));
+        original_fleet.insert(fleet_name, Fleet { ships: vec![] });
+
         Self {
+            name,
             buildings: vec![],
-            military: vec![],
+            military: original_fleet,
             resources,
             position: Position { x: pos_x, y: pos_y },
         }

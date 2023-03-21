@@ -9,13 +9,13 @@ use game::{
 };
 use mediator_sys::{
     builder::{BuilderFlow, BuilderInternal},
-    synchronous::basic::{BasicMediator, SyncMediatorInternalHandle, SyncMediatorInternalNext},
+    synchronous::basic::{BasicMediator, SyncMediatorInternalHandle},
 };
 
 use crate::game::tickable::TickResult;
 
 fn main() {
-    let mut planet_1 = Planet::new(0, 0);
+    let mut planet_1 = Planet::new(String::from("planet_1"), 0, 0);
 
     let mut create_type: HashMap<ResourceType, Resource> = HashMap::new();
     create_type.insert(
@@ -25,13 +25,15 @@ fn main() {
             amount: 10,
         },
     );
-    let resource_cost = Resource {
-        resource_type: ResourceType::Credits,
-        amount: 0,
-    };
 
     let mut resource_costs: HashMap<ResourceType, Resource> = HashMap::new();
-    resource_costs.insert(ResourceType::Credits, resource_cost);
+    resource_costs.insert(
+        ResourceType::Credits,
+        Resource {
+            resource_type: ResourceType::Credits,
+            amount: 0,
+        },
+    );
     let resource_building: ResourceBuilding = ResourceBuilding {
         building: BuildingData {
             name: String::from("ResourceBuildingName"),

@@ -28,13 +28,14 @@ impl Building {
         }
     }
 }
-
+#[derive(Clone)]
 pub struct BuildingData {
     pub name: String,
     pub resource_cost: HashMap<ResourceType, Resource>,
     pub level: u32,
 }
 
+#[derive(Clone)]
 pub struct MilitaryBuilding {
     pub building: BuildingData,
     pub create_type: MilitaryCreationTypes,
@@ -67,7 +68,7 @@ impl MilitaryBuilding {
         }
     }
 }
-
+#[derive(Clone)]
 pub struct ResourceBuilding {
     pub building: BuildingData,
     pub create_type: HashMap<ResourceType, Resource>,
